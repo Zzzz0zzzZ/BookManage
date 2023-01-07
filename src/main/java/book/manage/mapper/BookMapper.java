@@ -1,8 +1,11 @@
 package book.manage.mapper;
 
 import book.manage.entity.Book;
+import book.manage.entity.Borrow;
 import book.manage.entity.Student;
-import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.*;
+
+import java.util.List;
 
 public interface BookMapper {
 
@@ -12,4 +15,24 @@ public interface BookMapper {
     // desc是关键字，要加入`desc`符号
     @Insert("insert into book(title, `desc`, price) values(#{title}, #{desc}, #{price})")
     int addBook(Book book);
+
+    @Insert("insert into borrow(sid, bid) values(#{sid}, #{bid})")
+    int addBorrow(@Param("sid") int sid, @Param("bid") int bid);
+
+    @Results({
+            @Result(column = "id", property = "id", id = true),
+            @Result(column = "sid", property = "student", one = @One(select = "getStudentBySid")),
+            @Result(column = "bid", property = "book", one = @One(select = "getBookByBid"))
+    })
+    @Select("select * from borrow")
+    List<Borrow> getBorrowList();
+
+    @Select("select * from student where sid = #{sid}")
+    Student getStudentBySid(int sid);
+    @Select("select * from book where bid = #{bid}")
+    Book getBookByBid(int bid);
+    @Select("select * from student")
+    List<Student> getStudentList();
+    @Select("select * from book")
+    List<Book> getBookList();
 }
